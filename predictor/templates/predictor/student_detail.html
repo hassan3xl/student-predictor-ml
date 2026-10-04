@@ -1,0 +1,38 @@
+{% extends "predictor/base.html" %}
+{% block title %}{{ s.display_name }} · Student Risk Monitor{% endblock %}
+{% block content %}
+<p><a href="{% url 'student_list' %}">&larr; All students</a></p>
+<h1>{{ s.display_name }}</h1>
+
+<div class="card">
+  {% if s.risk_probability is not None %}
+    <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:center">
+      <div class="stat"><div class="n">{% widthratio s.risk_probability 1 100 %}%</div><div class="l">Predicted risk</div></div>
+      <div><span class="badge {{ s.risk_level }}">{{ s.risk_level|upper }} RISK</span>
+        {% if s.at_risk %}<strong style="margin-left:8px">Flagged for intervention</strong>{% endif %}</div>
+    </div>
+    <p class="muted" style="margin:12px 0 0">
+      Scored with the {% if s.model_used == "full" %}<strong>grades model</strong> (uses G1 and G2, most accurate){% else %}<strong>early-warning model</strong> (no period grades, less accurate){% endif %}.
+      {% if threshold %}A student is flagged when the probability reaches {% widthratio threshold 1 100 %}%.{% endif %}
+      Last scored {{ s.predicted_at|date:"j M Y, H:i" }}.
+    </p>
+  {% else %}
+    <p>This student has not been scored yet.</p>
+  {% endif %}
+  <div style="margin-top:14px">
+    <form class="inline" method="post" action="{% url 'student_predict' s.pk %}">{% csrf_token %}
+      <button class="btn" type="submit">Re-run prediction</button>
+    </form>
+    <a class="btn secondary" href="{% url 'admin:predictor_student_change' s.pk %}">Edit in admin</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Record</h2>
+  <div class="kv">
+    {% for label, value in details %}
+      <div><span>{{ label }}</span>{{ value|default_if_none:"–" }}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

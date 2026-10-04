@@ -1,0 +1,360 @@
+{
+  "trained_at": "2026-10-03T19:30:47+00:00",
+  "target": "G3 < 10",
+  "threshold_rule": "highest cut-off catching >= 80% of at-risk students (out-of-fold)",
+  "at_risk_rate": 0.3291,
+  "quality": {
+    "rows": 395,
+    "missing_cells": 0,
+    "duplicate_rows": 0,
+    "outliers_clipped": {
+      "age": 1,
+      "Fedu": 2,
+      "traveltime": 8,
+      "studytime": 27,
+      "famrel": 26,
+      "freetime": 19,
+      "Dalc": 18,
+      "absences": 15,
+      "G2": 13
+    }
+  },
+  "variants": {
+    "early": {
+      "label": "early-warning (no grades)",
+      "features": [
+        "age",
+        "Medu",
+        "Fedu",
+        "traveltime",
+        "studytime",
+        "failures",
+        "famrel",
+        "freetime",
+        "goout",
+        "Dalc",
+        "Walc",
+        "health",
+        "absences",
+        "school",
+        "sex",
+        "address",
+        "famsize",
+        "Pstatus",
+        "Mjob",
+        "Fjob",
+        "reason",
+        "guardian",
+        "schoolsup",
+        "famsup",
+        "paid",
+        "activities",
+        "nursery",
+        "higher",
+        "internet",
+        "romantic"
+      ],
+      "best_model": "Random Forest",
+      "threshold": 0.37,
+      "cv": {
+        "Logistic Regression": {
+          "accuracy": {
+            "mean": 0.6117,
+            "std": 0.0468
+          },
+          "precision": {
+            "mean": 0.4272,
+            "std": 0.0544
+          },
+          "recall": {
+            "mean": 0.5225,
+            "std": 0.0926
+          },
+          "f1": {
+            "mean": 0.468,
+            "std": 0.0648
+          },
+          "roc_auc": {
+            "mean": 0.6429,
+            "std": 0.0606
+          }
+        },
+        "Random Forest": {
+          "accuracy": {
+            "mean": 0.6592,
+            "std": 0.0669
+          },
+          "precision": {
+            "mean": 0.4938,
+            "std": 0.1101
+          },
+          "recall": {
+            "mean": 0.4362,
+            "std": 0.1176
+          },
+          "f1": {
+            "mean": 0.4542,
+            "std": 0.0939
+          },
+          "roc_auc": {
+            "mean": 0.6629,
+            "std": 0.0562
+          }
+        },
+        "Gradient Boosting": {
+          "accuracy": {
+            "mean": 0.6666,
+            "std": 0.0651
+          },
+          "precision": {
+            "mean": 0.5115,
+            "std": 0.1347
+          },
+          "recall": {
+            "mean": 0.3622,
+            "std": 0.0937
+          },
+          "f1": {
+            "mean": 0.4162,
+            "std": 0.0959
+          },
+          "roc_auc": {
+            "mean": 0.6496,
+            "std": 0.0539
+          }
+        }
+      },
+      "test": {
+        "accuracy": 0.557,
+        "precision": 0.4151,
+        "recall": 0.8462,
+        "f1": 0.557,
+        "roc_auc": 0.7242,
+        "confusion": [
+          [
+            22,
+            31
+          ],
+          [
+            4,
+            22
+          ]
+        ],
+        "n": 79
+      },
+      "importance": [
+        {
+          "feature": "failures",
+          "importance": 0.0965
+        },
+        {
+          "feature": "goout",
+          "importance": 0.0359
+        },
+        {
+          "feature": "schoolsup",
+          "importance": 0.0349
+        },
+        {
+          "feature": "absences",
+          "importance": 0.0306
+        },
+        {
+          "feature": "guardian",
+          "importance": 0.0128
+        },
+        {
+          "feature": "romantic",
+          "importance": 0.011
+        },
+        {
+          "feature": "age",
+          "importance": 0.0091
+        },
+        {
+          "feature": "nursery",
+          "importance": 0.0084
+        },
+        {
+          "feature": "studytime",
+          "importance": 0.0083
+        },
+        {
+          "feature": "address",
+          "importance": 0.0079
+        }
+      ],
+      "confusion_img": "predictor/img/early_confusion.png",
+      "importance_img": "predictor/img/early_importance.png"
+    },
+    "full": {
+      "label": "with G1/G2 grades",
+      "features": [
+        "age",
+        "Medu",
+        "Fedu",
+        "traveltime",
+        "studytime",
+        "failures",
+        "famrel",
+        "freetime",
+        "goout",
+        "Dalc",
+        "Walc",
+        "health",
+        "absences",
+        "G1",
+        "G2",
+        "school",
+        "sex",
+        "address",
+        "famsize",
+        "Pstatus",
+        "Mjob",
+        "Fjob",
+        "reason",
+        "guardian",
+        "schoolsup",
+        "famsup",
+        "paid",
+        "activities",
+        "nursery",
+        "higher",
+        "internet",
+        "romantic"
+      ],
+      "best_model": "Gradient Boosting",
+      "threshold": 0.74,
+      "cv": {
+        "Logistic Regression": {
+          "accuracy": {
+            "mean": 0.9062,
+            "std": 0.0441
+          },
+          "precision": {
+            "mean": 0.8267,
+            "std": 0.0757
+          },
+          "recall": {
+            "mean": 0.9102,
+            "std": 0.0678
+          },
+          "f1": {
+            "mean": 0.8649,
+            "std": 0.0627
+          },
+          "roc_auc": {
+            "mean": 0.9703,
+            "std": 0.0154
+          }
+        },
+        "Random Forest": {
+          "accuracy": {
+            "mean": 0.9135,
+            "std": 0.0215
+          },
+          "precision": {
+            "mean": 0.8335,
+            "std": 0.0463
+          },
+          "recall": {
+            "mean": 0.9263,
+            "std": 0.0521
+          },
+          "f1": {
+            "mean": 0.8758,
+            "std": 0.0301
+          },
+          "roc_auc": {
+            "mean": 0.9679,
+            "std": 0.016
+          }
+        },
+        "Gradient Boosting": {
+          "accuracy": {
+            "mean": 0.9293,
+            "std": 0.0311
+          },
+          "precision": {
+            "mean": 0.8825,
+            "std": 0.0632
+          },
+          "recall": {
+            "mean": 0.914,
+            "std": 0.0818
+          },
+          "f1": {
+            "mean": 0.8943,
+            "std": 0.0477
+          },
+          "roc_auc": {
+            "mean": 0.9709,
+            "std": 0.0198
+          }
+        }
+      },
+      "test": {
+        "accuracy": 0.9114,
+        "precision": 0.913,
+        "recall": 0.8077,
+        "f1": 0.8571,
+        "roc_auc": 0.9739,
+        "confusion": [
+          [
+            51,
+            2
+          ],
+          [
+            5,
+            21
+          ]
+        ],
+        "n": 79
+      },
+      "importance": [
+        {
+          "feature": "G2",
+          "importance": 0.3313
+        },
+        {
+          "feature": "G1",
+          "importance": 0.0158
+        },
+        {
+          "feature": "age",
+          "importance": 0.0033
+        },
+        {
+          "feature": "Mjob",
+          "importance": 0.0023
+        },
+        {
+          "feature": "reason",
+          "importance": 0.0015
+        },
+        {
+          "feature": "absences",
+          "importance": 0.0014
+        },
+        {
+          "feature": "Dalc",
+          "importance": 0.0008
+        },
+        {
+          "feature": "Fjob",
+          "importance": 0.0007
+        },
+        {
+          "feature": "Walc",
+          "importance": 0.0006
+        },
+        {
+          "feature": "famsize",
+          "importance": 0.0006
+        }
+      ],
+      "confusion_img": "predictor/img/full_confusion.png",
+      "importance_img": "predictor/img/full_importance.png"
+    }
+  }
+}

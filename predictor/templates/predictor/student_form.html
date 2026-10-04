@@ -1,0 +1,27 @@
+{% extends "predictor/base.html" %}
+{% block title %}Add student · Student Risk Monitor{% endblock %}
+{% block content %}
+<h1>Add a student and predict</h1>
+<p class="sub">Leave G1 and G2 empty for an early-warning prediction. Fill both for the more accurate model that uses period grades.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors }}</div>{% endif %}
+  {% for title, fields in form.sections %}
+  <div class="card">
+    <h2>{{ title }}</h2>
+    <div class="grid g4">
+      {% for field in fields %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  <button class="btn" type="submit">Save and predict</button>
+</form>
+{% endblock %}

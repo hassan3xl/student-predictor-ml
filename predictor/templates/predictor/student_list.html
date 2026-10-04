@@ -1,0 +1,48 @@
+{% extends "predictor/base.html" %}
+{% block title %}Students · Student Risk Monitor{% endblock %}
+{% block content %}
+<h1>Students</h1>
+<p class="sub">{{ page.paginator.count }} record{{ page.paginator.count|pluralize }}{% if risk or q %} match the current filter{% endif %}.</p>
+
+<div class="card">
+  <form method="get" class="filters">
+    <div><label for="q">Search name or ID</label><input id="q" type="text" name="q" value="{{ q }}"></div>
+    <div>
+      <label for="risk">Show</label>
+      <select id="risk" name="risk">
+        <option value="">All students</option>
+        <option value="flagged" {% if risk == "flagged" %}selected{% endif %}>Flagged at risk</option>
+        <option value="high" {% if risk == "high" %}selected{% endif %}>High risk</option>
+        <option value="medium" {% if risk == "medium" %}selected{% endif %}>Medium risk</option>
+        <option value="low" {% if risk == "low" %}selected{% endif %}>Low risk</option>
+        <option value="unscored" {% if risk == "unscored" %}selected{% endif %}>Not yet scored</option>
+      </select>
+    </div>
+    <div><button class="btn" type="submit">Apply</button></div>
+  </form>
+
+  {% if page.object_list %}
+  <table>
+    <tr><th>Student</th><th>Sex</th><th>Age</th><th class="num">Absences</th><th class="num">Failures</th>
+        <th class="num">G1</th><th class="num">G2</th><th>Risk</th><th>Level</th></tr>
+    {% for s in page.object_list %}
+    <tr>
+      <td><a href="{% url 'student_detail' s.pk %}">{{ s.display_name }}</a></td>
+      <td>{{ s.sex }}</td><td>{{ s.age }}</td>
+      <td class="num">{{ s.absences }}</td><td class="num">{{ s.failures }}</td>
+      <td class="num">{{ s.G1|default_if_none:"–" }}</td><td class="num">{{ s.G2|default_if_none:"–" }}</td>
+      <td>{% if s.risk_probability is not None %}<span class="meter"><i style="width:{% widthratio s.risk_probability 1 100 %}%"></i></span>{% widthratio s.risk_probability 1 100 %}%{% else %}–{% endif %}</td>
+      <td>{% if s.risk_level %}<span class="badge {{ s.risk_level }}">{{ s.risk_level|upper }}</span>{% else %}<span class="badge none">NOT SCORED</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div class="pager">
+    {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&risk={{ risk }}&q={{ q|urlencode }}">&larr; Previous</a>{% endif %}
+    <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a href="?page={{ page.next_page_number }}&risk={{ risk }}&q={{ q|urlencode }}">Next &rarr;</a>{% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No students found. <a href="{% url 'upload' %}">Upload a CSV</a> or <a href="{% url 'student_add' %}">add one</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

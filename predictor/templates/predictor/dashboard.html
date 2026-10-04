@@ -1,0 +1,80 @@
+{% extends "predictor/base.html" %}
+{% block title %}Dashboard · Student Risk Monitor{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p class="sub">Students predicted to be at risk of a final grade below 10/20, so staff can intervene early.</p>
+
+{% if not total %}
+  <div class="card">
+    <h2>No student data yet</h2>
+    <p>Load the bundled sample dataset or upload your own CSV to get started.</p>
+    <a class="btn" href="{% url 'upload' %}">Go to upload</a>
+  </div>
+{% else %}
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="card stat"><div class="n">{{ total }}</div><div class="l">Students on record</div></div>
+    <div class="card stat"><div class="n">{{ scored }}</div><div class="l">With a prediction</div></div>
+    <div class="card stat"><div class="n">{{ at_risk }}</div><div class="l">Flagged at risk</div></div>
+    <div class="card stat"><div class="n">{{ at_risk_pct }}%</div><div class="l">Share flagged</div></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Risk level</h2><canvas id="levels"></canvas></div>
+    <div class="card"><h2>Predicted risk probability</h2><canvas id="bands"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+      <h2 style="margin:0">Highest-risk students</h2>
+      <div>
+        <form class="inline" method="post" action="{% url 'predict_all' %}">{% csrf_token %}
+          <button class="btn secondary" type="submit">Re-score everyone</button>
+        </form>
+        <a class="btn" href="{% url 'student_list' %}?risk=flagged">All flagged</a>
+      </div>
+    </div>
+    {% if top %}
+    <table>
+      <tr><th>Student</th><th>Sex</th><th>Age</th><th class="num">Absences</th><th class="num">Failures</th><th>Risk</th><th>Level</th></tr>
+      {% for s in top %}
+      <tr>
+        <td><a href="{% url 'student_detail' s.pk %}">{{ s.display_name }}</a></td>
+        <td>{{ s.sex }}</td><td>{{ s.age }}</td>
+        <td class="num">{{ s.absences }}</td><td class="num">{{ s.failures }}</td>
+        <td><span class="meter"><i style="width:{% widthratio s.risk_probability 1 100 %}%"></i></span>{% widthratio s.risk_probability 1 100 %}%</td>
+        <td><span class="badge {{ s.risk_level }}">{{ s.risk_level|upper }}</span></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="muted">No students are flagged right now.</p>{% endif %}
+  </div>
+{% endif %}
+
+{% if metrics %}
+<p class="muted">Deployed models trained {{ metrics.trained_at|slice:":10" }} on {{ metrics.quality.rows }} records.
+  <a href="{% url 'metrics' %}">See accuracy details</a>.</p>
+{% else %}
+<div class="msg warning">No trained model found. Run <code>python manage.py train_model</code>.</div>
+{% endif %}
+
+{{ chart|json_script:"chart-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  if (!window.Chart || !document.getElementById("levels")) return;
+  var d = JSON.parse(document.getElementById("chart-data").textContent);
+  new Chart(document.getElementById("levels"), {
+    type: "doughnut",
+    data: { labels: ["Low", "Medium", "High"],
+            datasets: [{ data: d.levels, backgroundColor: ["#2e9d63", "#e0a030", "#d64545"] }] },
+    options: { plugins: { legend: { position: "bottom" } } }
+  });
+  new Chart(document.getElementById("bands"), {
+    type: "bar",
+    data: { labels: ["0-20%", "20-40%", "40-60%", "60-80%", "80-100%"],
+            datasets: [{ label: "Students", data: d.bands, backgroundColor: "#2f6fed" }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+})();
+</script>
+{% endblock %}

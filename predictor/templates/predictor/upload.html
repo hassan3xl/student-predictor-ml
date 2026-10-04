@@ -1,0 +1,38 @@
+{% extends "predictor/base.html" %}
+{% block title %}Upload · Student Risk Monitor{% endblock %}
+{% block content %}
+<h1>Import student data</h1>
+<p class="sub">Upload your department's records as CSV. Every row is validated, then scored on import.</p>
+
+<div class="card">
+  <h2>Upload a CSV</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="field">{{ form.file.label_tag }}{{ form.file }}<div class="help">{{ form.file.help_text }}</div>{{ form.file.errors }}</div>
+    <button class="btn" type="submit">Import and score</button>
+  </form>
+</div>
+
+{% if has_sample %}
+<div class="card">
+  <h2>Or load the sample dataset</h2>
+  <p class="muted">The public UCI "Student Performance" data (395 students, maths course). Good for demos and testing.</p>
+  <form method="post">{% csrf_token %}<button class="btn secondary" name="sample" value="1" type="submit">Load sample dataset</button></form>
+</div>
+{% endif %}
+
+{% if result and result.errors %}
+<div class="card">
+  <h2>Rows that were skipped</h2>
+  <p class="muted">Showing up to {{ result.errors|length }} problems.</p>
+  <ul>{% for e in result.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Expected columns</h2>
+  <p class="muted">A header row with these names (extra columns such as <code>name</code> are fine):</p>
+  <p><code>school, sex, age, address, famsize, Pstatus, Medu, Fedu, Mjob, Fjob, reason, guardian, traveltime, studytime, failures, schoolsup, famsup, paid, activities, nursery, higher, internet, romantic, famrel, freetime, goout, Dalc, Walc, health, absences</code></p>
+  <p class="muted">Optional: <code>G1, G2</code> (period grades, 0-20; enables the more accurate model), <code>G3</code> (final grade), <code>name</code>.</p>
+</div>
+{% endblock %}

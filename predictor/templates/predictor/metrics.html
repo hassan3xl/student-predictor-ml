@@ -1,0 +1,62 @@
+{% extends "predictor/base.html" %}
+{% load static %}
+{% block title %}Model metrics · Student Risk Monitor{% endblock %}
+{% block content %}
+<h1>Model metrics</h1>
+{% if not m %}
+  <div class="msg warning">No trained model found. Run <code>python manage.py train_model</code>.</div>
+{% else %}
+<p class="sub">How the deployed models were built and how well they perform. Target: <strong>{{ m.target }}</strong> (at risk). Trained {{ m.trained_at|slice:":10" }}.</p>
+
+<div class="card">
+  <h2>Data preparation</h2>
+  <div class="grid g4">
+    <div class="stat"><div class="n">{{ m.quality.rows }}</div><div class="l">Rows</div></div>
+    <div class="stat"><div class="n">{{ m.quality.missing_cells }}</div><div class="l">Missing cells (imputed if any)</div></div>
+    <div class="stat"><div class="n">{{ m.quality.duplicate_rows }}</div><div class="l">Duplicate rows</div></div>
+    <div class="stat"><div class="n">{% widthratio m.at_risk_rate 1 100 %}%</div><div class="l">At-risk rate in data</div></div>
+  </div>
+  <p class="muted" style="margin-bottom:0">Numeric outliers outside 1.5 x IQR are clipped inside the pipeline (rows affected per column):
+    {% for col, n in m.quality.outliers_clipped.items %}<code>{{ col }}</code> {{ n }}{% if not forloop.last %}, {% endif %}{% empty %}none{% endfor %}.
+    Missing values are imputed (median for numbers, most frequent for categories), then numbers are scaled and categories one-hot encoded.</p>
+</div>
+
+{% for key, v in m.variants.items %}
+<div class="card">
+  <h2>{% if key == "early" %}Early-warning model{% else %}Grades model{% endif %} <span class="muted" style="font-weight:400">({{ v.label }})</span></h2>
+  <p>Best model by cross-validated ROC-AUC: <strong>{{ v.best_model }}</strong>. Alert threshold: <strong>{% widthratio v.threshold 1 100 %}%</strong>
+     ({{ m.threshold_rule }}).</p>
+
+  <h2 style="font-size:15px">Cross-validation on the training split (5-fold x 3 repeats, mean ± std)</h2>
+  <table>
+    <tr><th>Model</th><th class="num">Accuracy</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th><th class="num">ROC-AUC</th></tr>
+    {% for name, r in v.cv.items %}
+    <tr {% if name == v.best_model %}style="font-weight:700"{% endif %}>
+      <td>{{ name }}</td>
+      <td class="num">{{ r.accuracy.mean|floatformat:3 }} ± {{ r.accuracy.std|floatformat:3 }}</td>
+      <td class="num">{{ r.precision.mean|floatformat:3 }} ± {{ r.precision.std|floatformat:3 }}</td>
+      <td class="num">{{ r.recall.mean|floatformat:3 }} ± {{ r.recall.std|floatformat:3 }}</td>
+      <td class="num">{{ r.f1.mean|floatformat:3 }} ± {{ r.f1.std|floatformat:3 }}</td>
+      <td class="num">{{ r.roc_auc.mean|floatformat:3 }} ± {{ r.roc_auc.std|floatformat:3 }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted">Cross-validation scores use the default 50% cut-off. Recall is on the at-risk class.</p>
+
+  <h2 style="font-size:15px">Hold-out test at the alert threshold ({{ v.test.n }} unseen students)</h2>
+  <div class="grid g4">
+    <div class="stat"><div class="n">{{ v.test.accuracy|floatformat:3 }}</div><div class="l">Accuracy</div></div>
+    <div class="stat"><div class="n">{{ v.test.recall|floatformat:3 }}</div><div class="l">Recall (at-risk caught)</div></div>
+    <div class="stat"><div class="n">{{ v.test.precision|floatformat:3 }}</div><div class="l">Precision (flags that are right)</div></div>
+    <div class="stat"><div class="n">{{ v.test.roc_auc|floatformat:3 }}</div><div class="l">ROC-AUC</div></div>
+  </div>
+  <p class="muted">A test set this small is noisy: a few students move these numbers by several points.</p>
+
+  <div class="grid g2">
+    <div><img class="plot" src="{% static v.confusion_img %}" alt="Confusion matrix"></div>
+    <div><img class="plot" src="{% static v.importance_img %}" alt="Top features by permutation importance"></div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

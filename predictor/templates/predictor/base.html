@@ -1,0 +1,86 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Student Risk Monitor{% endblock %}</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1b2430; --muted:#667085; --line:#e4e7ec;
+          --brand:#2f6fed; --brand-ink:#fff;
+          --high-bg:#fde8e8; --high-ink:#a61b1b; --med-bg:#fff1d6; --med-ink:#8a5200;
+          --low-bg:#e3f5ea; --low-ink:#146c3c; --none-bg:#eceff3; --none-ink:#475467; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background:var(--bg); color:var(--ink); }
+  header { background:#111a2b; color:#fff; }
+  header .bar { max-width:1100px; margin:0 auto; padding:0 20px; display:flex; flex-wrap:wrap;
+                align-items:center; gap:4px 22px; min-height:54px; }
+  header .brand { font-weight:700; margin-right:8px; }
+  header a { color:#c8d3ea; text-decoration:none; padding:6px 0; }
+  header a:hover { color:#fff; }
+  main { max-width:1100px; margin:24px auto; padding:0 20px 60px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:0 0 12px; }
+  .sub { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:18px; }
+  .grid { display:grid; gap:16px; }
+  .g4 { grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); }
+  .g2 { grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); }
+  .stat .n { font-size:30px; font-weight:700; line-height:1.1; }
+  .stat .l { color:var(--muted); font-size:13px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  a { color:var(--brand); }
+  .btn { display:inline-block; background:var(--brand); color:var(--brand-ink); border:0; border-radius:8px;
+         padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; text-decoration:none; }
+  .btn.secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  .badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+  .badge.high { background:var(--high-bg); color:var(--high-ink); }
+  .badge.medium { background:var(--med-bg); color:var(--med-ink); }
+  .badge.low { background:var(--low-bg); color:var(--low-ink); }
+  .badge.none { background:var(--none-bg); color:var(--none-ink); }
+  .meter { display:inline-block; width:70px; height:7px; background:var(--line); border-radius:4px; vertical-align:middle; margin-right:8px; overflow:hidden; }
+  .meter i { display:block; height:100%; background:var(--brand); }
+  .msg { padding:10px 14px; border-radius:8px; margin-bottom:12px; border:1px solid var(--line); background:#fff; }
+  .msg.success { background:var(--low-bg); color:var(--low-ink); border-color:#bfe5cd; }
+  .msg.error { background:var(--high-bg); color:var(--high-ink); border-color:#f3bcbc; }
+  .msg.warning { background:var(--med-bg); color:var(--med-ink); border-color:#f1d49a; }
+  form.inline { display:inline; }
+  label { display:block; font-weight:600; font-size:13px; margin-bottom:3px; }
+  input[type=text], input[type=number], select, input[type=file] {
+    width:100%; padding:8px 10px; border:1px solid #cdd3dc; border-radius:7px; font:inherit; background:#fff; }
+  .field { margin-bottom:12px; }
+  .help { color:var(--muted); font-size:12px; margin-top:2px; }
+  .errorlist { margin:4px 0 0; padding:0; list-style:none; color:var(--high-ink); font-size:13px; }
+  .filters { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin-bottom:14px; }
+  .filters > div { min-width:160px; }
+  .pager { display:flex; gap:12px; align-items:center; margin-top:14px; color:var(--muted); }
+  .muted { color:var(--muted); }
+  .kv { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:6px 24px; }
+  .kv div span { color:var(--muted); display:block; font-size:12px; }
+  img.plot { max-width:100%; height:auto; border:1px solid var(--line); border-radius:8px; }
+  canvas { max-height:260px; }
+  @media (max-width:640px) { th:nth-child(n+6), td:nth-child(n+6) { display:none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <span class="brand">Student Risk Monitor</span>
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <a href="{% url 'student_list' %}">Students</a>
+    <a href="{% url 'student_add' %}">Add student</a>
+    <a href="{% url 'upload' %}">Upload CSV</a>
+    <a href="{% url 'metrics' %}">Model metrics</a>
+    <a href="/api/docs">API docs</a>
+    <a href="/admin/">Admin</a>
+  </div>
+</header>
+<main>
+  {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
